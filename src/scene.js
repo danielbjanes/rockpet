@@ -4,9 +4,10 @@ const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.inner
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
+const texture = new THREE.TextureLoader().load( 'textures/rock_texture.jpg' );
 
 const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+const material = new THREE.MeshBasicMaterial( { map: texture } );
 const cube = new THREE.Mesh( geometry, material );
 scene.add( cube );
 
@@ -19,6 +20,6 @@ function animate() {
   cube.rotation.y += 0.01;
 
   renderer.render( scene, camera );
-};
+}
 
 animate();
