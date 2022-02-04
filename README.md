@@ -8,3 +8,6 @@
 - Xinyi Liu
 - Sean Coyne
 - Jack Li
+
+### Running
+`npm run dev`
