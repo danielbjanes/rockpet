@@ -10,4 +10,8 @@
 - Jack Li
 
 ### Running
+You must be in the ./src/ directory before running the command
 `npm run dev`
+
+### Uses
+Three JS
