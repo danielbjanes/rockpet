@@ -12,6 +12,8 @@ var mesh_points;
 //Texture for loading images and wrapping onto object
 const texture = new THREE.TextureLoader().load('textures/rock_texture.jpg');
 
+
+
 function initRender() {
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -29,6 +31,14 @@ var scene = new THREE.Scene();
 
 function initScene() {
     scene = new THREE.Scene();
+}
+
+function initBackground() {
+    const loader = new THREE.TextureLoader();
+    loader.load('textures/nature_background.jpg', function(texture) {
+        scene.background = texture;
+    });
+
 }
 
 var light;
@@ -191,6 +201,7 @@ function draw() {
     initLight();
     initModel();
     initControls();
+    initBackground();
 
     animate();
     window.onresize = onWindowResize;
