@@ -36,9 +36,9 @@ function initScene() {
     scene = new THREE.Scene();
 }
 
-function initBackground() {
+function initBackground(fileLocation) {
     const loader = new THREE.TextureLoader();
-    loader.load('textures/nature_background.jpg', function(texture) {
+    loader.load(fileLocation, function(texture) {
         scene.background = texture;
     });
 
@@ -200,7 +200,9 @@ function showGUI(){
   gui.add( rockProperties, 'Rock Weight' );
   gui.add( rockProperties, 'Feed Rock');
   gui.add( rockProperties, 'Walk Your Rock')
-  gui.add( rockProperties, 'Texture', [ 'Texture 1', 'Texture 2', 'Texture 3' ] )
+  gui.add( rockProperties, 'Texture', [ 'textures/nature_background.jpg', 'textures/desert.jpg', 'textures/snowy_background.jpg' ] ).onChange( value => {
+		initBackground( value );
+	} );
 
 }
 
