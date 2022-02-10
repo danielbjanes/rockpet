@@ -110,7 +110,7 @@ function createMaterial() {
     // create a "standard" material using
     // the texture we just loaded as a color map
     const material = new THREE.MeshStandardMaterial({
-        color: 0x808080,
+        map: texture,
     });
 
     return material;
