@@ -9,13 +9,25 @@ import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.16/+esm';
 
 
 var renderer = new THREE.WebGLRenderer();
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+
+var polygons = 15
 var mesh;
-var mesh_points;
 
-//Texture for loading images and wrapping onto object
-const texture = new THREE.TextureLoader().load('textures/rock_texture.jpg');
+var dirLight = new THREE.SpotLight(0xffffff, 2, 0, 15, 1, 1);
+dirLight.position.set(222, 222, 222);
+let helper = new THREE.SpotLightHelper(dirLight, 5);
+dirLight.add(helper);
 
+var spotlight2 = new THREE.SpotLight(0xffffff, 1, 0, 15, 1, 1);
+spotlight2.position.set(-400, -600, 100);
+let helper2 = new THREE.SpotLightHelper(spotlight2, 0xFF0000);
+spotlight2.add(helper2);
 
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+var scene = new THREE.Scene();
 
 function initRender() {
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -23,14 +35,12 @@ function initRender() {
     document.body.appendChild(renderer.domElement);
 }
 
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 function initCamera() {
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
-    camera.position.set(0, 0, 600);
+    camera.position.set(300, 100, 600);
 }
 
-var scene = new THREE.Scene();
 
 function initScene() {
     scene = new THREE.Scene();
@@ -44,16 +54,6 @@ function initBackground(fileLocation) {
 
 }
 
-var light;
-
-function initLight() {
-    scene.add(new THREE.AmbientLight(0x404040));
-
-    light = new THREE.DirectionalLight(0xffffff);
-    light.position.set(2, 2, 2);
-    scene.add(light);
-}
-
 function initModel() {
     generatePoints();
 
@@ -63,7 +63,7 @@ function initModel() {
 function generatePoints() {
     // Randomly generate a set of vertices
     var points = [];
-    for (var i = 0; i < 15; i++) {
+    for (var i = 0; i < polygons; i++) {
         //The position of the coordinate point of the xyz axis will be randomly generated within + - 150
         var randomX = -150 + Math.round(Math.random() * 300);
         var randomY = -150 + Math.round(Math.random() * 300);
@@ -76,14 +76,15 @@ function generatePoints() {
     //Declare a mesh object that holds all points
     var spGroup = new THREE.Object3D();
     //Declare a mesh base material
-    var material = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: false });
+    var material = new THREE.MeshPhongMaterial({ color: 0xff0000, transparent: false });
     //Traversing the array to generate small ball points and adding them to the object
     points.forEach(function(point) {
 
-        var spGeom = new THREE.SphereGeometry(2);
+        var spGeom = new THREE.SphereGeometry(1);
+
         var spMesh = new THREE.Mesh(spGeom, material);
         spMesh.position.copy(point); //Set the position of the current ball to the coordinates of the current point
-        scene.add(spMesh);
+        //scene.add(spMesh); uncomment this to see the point for the convex shape
     });
     // Add objects that hold all points to the scene
     scene.add(spGroup);
@@ -93,9 +94,9 @@ function generatePoints() {
     //Build model
     var hullMesh = createMesh(hullGeometry);
     //Add to scene
-    scene.add(hullMesh);
     mesh = hullMesh;
 }
+
 
 function createMaterial() {
     // create a texture loader.
@@ -109,7 +110,7 @@ function createMaterial() {
     // create a "standard" material using
     // the texture we just loaded as a color map
     const material = new THREE.MeshStandardMaterial({
-        map: texture,
+        color: 0x808080,
     });
 
     return material;
@@ -174,36 +175,51 @@ function onWindowResize() {
 }
 
 function rotateModel() {
+    if (mesh) {
+        mesh.rotation.x += 0.001;
+        mesh.rotation.y += 0.001;
+        mesh.rotation.z += 0.001;
+        scene.add(mesh);
+    }
 
-    //mesh.rotation.x += 0.01;
-    //mesh.rotation.y += 0.01;
-
-
-    // increase the cube's rotation each frame
-    scene.rotation.x += 0.001;
-    scene.rotation.y += 0.001;
-    scene.rotation.z += 0.001;
 }
 
 // Builds the sidebar for the rock interactions
-function showGUI(){
-  const gui = new GUI({width: 500});
-  const rockProperties = {
-    'Rock Name': 'Rocky the Rock',
-    'Rock Weight': 4,
-    'Feed Rock': function() { alert( 'Rock fed' ) },
-    'Walk Your Rock': function() { alert( 'Rock walked' ) },
-    'Background': 'Background 1'
-  }
+function showGUI() {
+    const gui = new GUI({ width: 500 });
+    const rockProperties = {
+        'Rock Name': 'Rocky the Rock',
+        'Rock Weight': polygons,
+        'Feed Rock': function() { alert('Rock fed') },
+        'Walk Your Rock': function() { alert('Rock walked') },
+        'Background': 'Background 1'
+    }
 
-  gui.add( rockProperties, 'Rock Name' );
-  gui.add( rockProperties, 'Rock Weight' );
-  gui.add( rockProperties, 'Feed Rock');
-  gui.add( rockProperties, 'Walk Your Rock')
-  gui.add( rockProperties, 'Texture', [ 'textures/nature_background.jpg', 'textures/desert.jpg', 'textures/snowy_background.jpg' ] ).onChange( value => {
-		initBackground( value );
-	} );
+    gui.add(rockProperties, 'Rock Weight')
+        .name('Custom Name')
+        .onChange(value => {
+            polygons = value;
+            scene.clear();
+            generatePoints();
+            initLight();
+        });
+    gui.add(rockProperties, 'Rock Name');
+    gui.add(rockProperties, 'Rock Weight');
+    gui.add(rockProperties, 'Feed Rock');
+    gui.add(rockProperties, 'Walk Your Rock')
+    gui.add(rockProperties, 'Texture', ['textures/nature_background.jpg', 'textures/desert.jpg', 'textures/snowy_background.jpg']).onChange(value => {
+        initBackground(value);
+    });
 
+}
+
+
+
+function initLight() {
+    scene.add(dirLight);
+    scene.add(helper);
+    scene.add(spotlight2);
+    scene.add(helper2);
 }
 
 function animate() {
@@ -212,7 +228,9 @@ function animate() {
     requestAnimationFrame(animate);
     window.onload = draw;
     window.onresize = onWindowResize;
-    rotateModel(); // TODO - I am rotating the entire SCENE. This is probably not a great idea later on
+
+    rotateModel();
+
     renderer.render(scene, camera);
     stats.update()
 
@@ -221,13 +239,17 @@ function animate() {
 function draw() {
     initRender();
     initScene();
-    initCamera();
     initLight();
     initModel();
+    initCamera();
     initControls();
+    const loader = new THREE.TextureLoader(); // This is here simply to override the black default texture and put in a background
+    loader.load('textures/default_background.jpg', function(texture) {
+        scene.background = texture;
+    });
     initBackground();
 
-    animate();
+
     window.onresize = onWindowResize;
 }
 const stats = Stats()
