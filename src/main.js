@@ -189,14 +189,13 @@ function showGUI() {
     const gui = new GUI({ width: 500 });
     const rockProperties = {
         'Rock Name': 'Rocky the Rock',
-        'Rock Weight': polygons,
+        'Rock Weight': 15,
         'Feed Rock': function() { alert('Rock fed') },
         'Walk Your Rock': function() { alert('Rock walked') },
         'Background': 'Background 1'
     }
 
     gui.add(rockProperties, 'Rock Weight')
-        .name('Custom Name')
         .onChange(value => {
             polygons = value;
             scene.clear();
@@ -204,7 +203,6 @@ function showGUI() {
             initLight();
         });
     gui.add(rockProperties, 'Rock Name');
-    gui.add(rockProperties, 'Rock Weight');
     gui.add(rockProperties, 'Feed Rock');
     gui.add(rockProperties, 'Walk Your Rock')
     gui.add(rockProperties, 'Texture', ['textures/nature_background.jpg', 'textures/desert.jpg', 'textures/snowy_background.jpg']).onChange(value => {
