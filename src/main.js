@@ -198,7 +198,7 @@ function showGUI() {
         .onChange(value => {
             polygons = value;
             scene.clear();
-            generatePoints();
+            generatePoints(rockProperties.Color)
             initLight();
         });
     gui.add(rockProperties, 'Rock Name');
