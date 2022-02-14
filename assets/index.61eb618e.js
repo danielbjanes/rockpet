@@ -47,7 +47,7 @@ function p(t) { for (var e = [], o = 0; o < y; o++) { var d = -150 + Math.round(
         G = te(P, t);
     c = G }
 
-function ne(t) { return new w().load("src/textures/rock_texture.jpg"), new K({ color: t }) }
+function ne(t) { return new w().load("rock_texture.jpg"), new K({ color: t }) }
 
 function te(t, e) { console.log(t); var o = ne(e);
     o.side = T; var d = new U;
@@ -61,14 +61,14 @@ function S() { u.aspect = window.innerWidth / window.innerHeight, u.updateProjec
 function re() { c && (c.rotation.x += .001, c.rotation.y += .001, c.rotation.z += .001, a.add(c)) }
 
 function ae() { const t = new Z({ width: 500 }),
-        e = { "Rock Name": "Rocky the Rock", "Rock Weight": 15, "Feed Rock": function() { alert("Rock fed") }, "Walk Your Rock": function() { alert("Rock walked") }, Background: "src/textures/default_background.jpg", Color: "#AA00FF" };
-    t.add(e, "Rock Weight").onChange(o => { y = o, a.clear(), p(e.Color), m() }), t.add(e, "Rock Name"), t.add(e, "Feed Rock"), t.add(e, "Walk Your Rock"), t.add(e, "Background", ["src/textures/default_background.jpg", "src/textures/nature_background.jpg", "src/textures/desert.jpg", "src/textures/snowy_background.jpg"]).onChange(o => { R(o) }), t.addColor(e, "Color", 255).onChange(o => { a.clear(), p(o), m() }) }
+        e = { "Rock Name": "Rocky the Rock", "Rock Weight": 15, "Feed Rock": function() { alert("Rock fed") }, "Walk Your Rock": function() { alert("Rock walked") }, Background: "default_background.jpg", Color: "#AA00FF" };
+    t.add(e, "Rock Weight").onChange(o => { y = o, a.clear(), p(e.Color), m() }), t.add(e, "Rock Name"), t.add(e, "Feed Rock"), t.add(e, "Walk Your Rock"), t.add(e, "Background", ["default_background.jpg", "nature_background.jpg", "desert.jpg", "snowy_background.jpg"]).onChange(o => { R(o) }), t.addColor(e, "Color", 255).onChange(o => { a.clear(), p(o), m() }) }
 
 function m() { a.add(f), a.add(x), a.add(h), a.add(C) }
 
 function j() { requestAnimationFrame(j), window.onload = L, window.onresize = S, re(), i.render(a, u), F.update() }
 
-function L() { Q(), $(), m(), ee(), X(), oe(), new w().load("src/textures/default_background.jpg", function(e) { a.background = e }), R(), window.onresize = S }
+function L() { Q(), $(), m(), ee(), X(), oe(), new w().load("default_background.jpg", function(e) { a.background = e }), R(), window.onresize = S }
 const F = H();
 document.body.appendChild(F.dom);
 ae();

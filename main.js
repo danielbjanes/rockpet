@@ -55,12 +55,12 @@ function initBackground(fileLocation) {
 }
 
 function initModel() {
-    generatePoints('#AA00FF');
+    generatePoints();
 
 }
 
 //Methods to generate model calls
-function generatePoints(colorProp) {
+function generatePoints() {
     // Randomly generate a set of vertices
     var points = [];
     for (var i = 0; i < polygons; i++) {
@@ -92,13 +92,13 @@ function generatePoints(colorProp) {
     // Use these points to instantiate a THREE.ConvexGeometry Geometry objects
     var hullGeometry = new ConvexGeometry(points);
     //Build model
-    var hullMesh = createMesh(hullGeometry, colorProp);
+    var hullMesh = createMesh(hullGeometry);
     //Add to scene
     mesh = hullMesh;
 }
 
 
-function createMaterial(colorProp) {
+function createMaterial() {
     // create a texture loader.
     const textureLoader = new THREE.TextureLoader();
 
@@ -106,20 +106,22 @@ function createMaterial(colorProp) {
     const texture = textureLoader.load(
         'rock_texture.jpg',
     );
+
     // create a "standard" material using
     // the texture we just loaded as a color map
-    const material = new THREE.MeshStandardMaterial({ color: colorProp });
-
+    const material = new THREE.MeshStandardMaterial({
+        map: texture,
+    });
 
     return material;
 }
 
-function createMesh(geom, colorProp) {
+function createMesh(geom) {
 
     // Instantiate a green, translucent material
 
     console.log(geom);
-    var meshMaterial = createMaterial(colorProp);
+    var meshMaterial = createMaterial();
     meshMaterial.side = THREE.DoubleSide; //Set the material to be visible on both sides
     var wireFrameMat = new THREE.MeshBasicMaterial();
     wireFrameMat.wireframe = true; //Render materials as wireframes
@@ -190,28 +192,21 @@ function showGUI() {
         'Rock Weight': 15,
         'Feed Rock': function() { alert('Rock fed') },
         'Walk Your Rock': function() { alert('Rock walked') },
-        'Background': 'default_background.jpg',
-        Color: '#AA00FF'
+        'Background': 'Background 1'
     }
 
     gui.add(rockProperties, 'Rock Weight')
         .onChange(value => {
             polygons = value;
             scene.clear();
-            generatePoints(rockProperties.Color)
+            generatePoints();
             initLight();
         });
     gui.add(rockProperties, 'Rock Name');
     gui.add(rockProperties, 'Feed Rock');
     gui.add(rockProperties, 'Walk Your Rock')
-    gui.add(rockProperties, 'Background', ['default_background.jpg', 'nature_background.jpg', 'desert.jpg', 'snowy_background.jpg']).onChange(value => {
+    gui.add(rockProperties, 'Texture', ['nature_background.jpg', 'desert.jpg', 'snowy_background.jpg']).onChange(value => {
         initBackground(value);
-    });
-    gui.addColor(rockProperties, 'Color', 255).onChange(value => {
-        scene.clear();
-        generatePoints(value);
-        initLight();
-
     });
 
 }
