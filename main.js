@@ -104,7 +104,7 @@ function createMaterial(colorProp) {
 
     // load a texture
     const texture = textureLoader.load(
-        'src/textures/rock_texture.jpg',
+        'rock_texture.jpg',
     );
     // create a "standard" material using
     // the texture we just loaded as a color map
@@ -190,7 +190,7 @@ function showGUI() {
         'Rock Weight': 15,
         'Feed Rock': function() { alert('Rock fed') },
         'Walk Your Rock': function() { alert('Rock walked') },
-        'Background': 'src/textures/default_background.jpg',
+        'Background': 'default_background.jpg',
         Color: '#AA00FF'
     }
 
@@ -204,7 +204,7 @@ function showGUI() {
     gui.add(rockProperties, 'Rock Name');
     gui.add(rockProperties, 'Feed Rock');
     gui.add(rockProperties, 'Walk Your Rock')
-    gui.add(rockProperties, 'Background', ['src/textures/default_background.jpg', 'src/textures/nature_background.jpg', 'src/textures/desert.jpg', 'src/textures/snowy_background.jpg']).onChange(value => {
+    gui.add(rockProperties, 'Background', ['default_background.jpg', 'nature_background.jpg', 'desert.jpg', 'snowy_background.jpg']).onChange(value => {
         initBackground(value);
     });
     gui.addColor(rockProperties, 'Color', 255).onChange(value => {
@@ -247,7 +247,7 @@ function draw() {
     initCamera();
     initControls();
     const loader = new THREE.TextureLoader(); // This is here simply to override the black default texture and put in a background
-    loader.load('src/textures/default_background.jpg', function(texture) {
+    loader.load('default_background.jpg', function(texture) {
         scene.background = texture;
     });
     initBackground();
