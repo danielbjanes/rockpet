@@ -1,0 +1,15 @@
+name: Workflow for checking http status codes
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    # ... uses ....
+    - name: Check http status code of production site
+      uses: lakuapik/gh-actions-http-status@v1
+      with:
+        sites: '["http://github.com", "https://danielbjanes.github.io/rockpet/"]'
+        expected: '[301, 200]'
+    # ... uses ....

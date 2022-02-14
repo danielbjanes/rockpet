@@ -10,6 +10,7 @@ on:
     branches: [ main ]
 
 jobs:
+
   build:
 
     runs-on: ubuntu-latest
@@ -26,5 +27,9 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+    - run: echo "Installing npm ..."
     - run: npm install
+    - run: echo "npm installed"
+    - run: echo "Starting Project..."
     - run: npm run build
+    - run: echo "Project Running"
