@@ -6,6 +6,7 @@ import * as SceneUtils from 'three/examples/jsm/utils/SceneUtils'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import Stats from 'three/examples/jsm/libs/stats.module'
 import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.16/+esm';
+import {ObjectControls} from 'threeJS-object-controls';
 
 
 var renderer = new THREE.WebGLRenderer();
@@ -38,7 +39,7 @@ function initRender() {
 
 function initCamera() {
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
-    camera.position.set(300, 100, 600);
+    camera.position.set(0, 0, 600);
 }
 
 
@@ -126,11 +127,7 @@ function createMesh(geom, colorProp) {
 
 
 
-
     ////////////////////////
-
-
-
 
     // Assign both materials to geometry
     var mesh = SceneUtils.createMultiMaterialObject(geom, [meshMaterial, wireFrameMat]);
@@ -143,24 +140,15 @@ var controls;
 
 function initControls() {
 
-    controls = new OrbitControls(camera, renderer.domElement);
+    controls = new ObjectControls(camera, renderer.domElement, mesh);
 
-    // If you use the animate method, delete this function
-    //controls.addEventListener( 'change', render );
-    // Whether there is inertia in the meaning of damping or rotation when the animation is recycled
-    controls.enableDamping = true;
-    //Dynamic damping coefficient is the mouse drag rotation sensitivity
-    //controls.dampingFactor = 0.25;
-    //Can I zoom
-    controls.enableZoom = true;
-    //Auto rotate or not
-    controls.autoRotate = true;
-    //Set the maximum distance between the camera and the origin
-    controls.minDistance = 200;
-    //Set the maximum distance between the camera and the origin
-    controls.maxDistance = 1600;
-    //Enable right drag
-    controls.enablePan = true;
+    controls.setDistance(200, 1600); // sets the min - max distance able to zoom
+    controls.setZoomSpeed(5); // sets the zoom speed ( 0.1 == slow, 1 == fast)
+    controls.enableZoom(); // enables zoom
+    controls.setRotationSpeed(0.05); // sets a new rotation speed for desktop ( 0.1 == slow, 1 == fast)
+    controls.enableVerticalRotation(); // enables the vertical rotation
+    controls.enableHorizontalRotation(); // enables the horizontal rotation
+
 }
 
 
@@ -219,10 +207,12 @@ function showGUI() {
 
 
 function initLight() {
+    const light = new THREE.AmbientLight( 0xffffff, 0.5 ); // soft white light
+    scene.add( light );
     scene.add(dirLight);
     scene.add(helper);
-    scene.add(spotlight2);
-    scene.add(helper2);
+    // scene.add(spotlight2);
+    // scene.add(helper2);
 }
 
 function animate() {
