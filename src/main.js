@@ -33,12 +33,13 @@ function initRender() {
 function initCamera() {
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
     camera.position.set(0, 0, 100);
+    // camera.lookAt(new THREE.Vector3(0,,0)); // Set look at coordinate like this
 }
 
 
 // Create Rock model
 function initModel() {
-    mesh = ROCK.generatePoints( '#AA00FF', 20);
+    mesh = ROCK.generatePoints('#AA00FF', 20, 25);
     scene.add(mesh);
 }
 
@@ -52,12 +53,12 @@ function initBackground(fileLocation) {
 
 }
 
-
+// Create lights
 function initLight() {
 
     //Spot light
     const dirLight = new THREE.SpotLight(0xffffff, 2, 0, 15, 1, 1);
-    dirLight.position.set(0, 100, 50);
+    dirLight.position.set(0, 100, 100);
     scene.add(dirLight);
     
     // Wireframe of light
@@ -75,7 +76,7 @@ function initLight() {
 function initControls() {
 
     controls = new ObjectControls(camera, renderer.domElement, mesh);
-    controls.setDistance(50, 250); // sets the min - max distance able to zoom
+    controls.setDistance(50, 2000); // sets the min - max distance able to zoom
     controls.setZoomSpeed(10); // sets the zoom speed ( 0.1 == slow, 1 == fast)
     controls.enableZoom(); // enables zoom
     controls.setRotationSpeed(0.1); // sets a new rotation speed for desktop ( 0.1 == slow, 1 == fast)
@@ -92,6 +93,7 @@ function onWindowResize() {
 
 }
 
+
 function rotateModel() {
     if (mesh) {
         mesh.rotation.x += 0.001;
@@ -100,6 +102,7 @@ function rotateModel() {
     }
 
 }
+
 
 // Builds the sidebar for the rock interactions
 function showGUI() {
