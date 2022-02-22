@@ -6,15 +6,15 @@ import * as SceneUtils from 'three/examples/jsm/utils/SceneUtils'
 var polygons = 15
 
 //Methods to generate model calls
-export function generatePoints(colorProp) {
+export function generatePoints(colorProp, dimension) {
   // Randomly generate a set of vertices
 
   var points = [];
   for (var i = 0; i < polygons; i++) {
       //The position of the coordinate point of the xyz axis will be randomly generated within + - 150
-      var randomX = -150 + Math.round(Math.random() * 300);
-      var randomY = -150 + Math.round(Math.random() * 300);
-      var randomZ = -150 + Math.round(Math.random() * 300);
+      var randomX = -dimension/2 + Math.round(Math.random() * dimension);
+      var randomY = -dimension/2 + Math.round(Math.random() * dimension);
+      var randomZ = -dimension/2 + Math.round(Math.random() * dimension);
 
       //Create a coordinate point and add it to the array
       points.push(new THREE.Vector3(randomX, randomY, randomZ));
