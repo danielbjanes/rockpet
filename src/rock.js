@@ -45,8 +45,8 @@ const createMesh = (geom, colorProp) => {
   const meshMaterial = createMaterial(colorProp);
   meshMaterial.side = THREE.DoubleSide; //Set the material to be visible on both sides
 
-  const wireFrameMat = new THREE.MeshBasicMaterial();
-  wireFrameMat.wireframe = true; //Render materials as wireframes
+  // const wireFrameMat = new THREE.MeshStandardMaterial( { color: "black" } );
+  // wireFrameMat.wireframe = true; //Render materials as wireframes
 
   // Assign both materials to geometry
   const mesh = SceneUtils.createMultiMaterialObject(geom, [meshMaterial]);
@@ -69,4 +69,12 @@ const createMaterial = (colorProp) => {
   const material = new THREE.MeshStandardMaterial( { color: colorProp  } );
 
   return material;
+}
+
+
+export function changeMeshColor(mesh, value) {
+
+
+
+  return mesh;
 }

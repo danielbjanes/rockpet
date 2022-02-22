@@ -1,17 +1,13 @@
-import './style.css'
 import * as THREE from "three";
 import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.16/+esm';
 import {ObjectControls} from 'threeJS-object-controls';
 
 import * as ROCK from "./rock"
+import './style.css'
 
-var controls;
-var mesh;
-var camera;
-var scene;
-var renderer;
-
-
+var controls, mesh, camera, scene, renderer;
+const POLYGONS = 20;
+const COLOR = '#424242'
 
 // Create Scene
 function initScene() {
@@ -39,7 +35,7 @@ function initCamera() {
 
 // Create Rock model
 function initModel() {
-    mesh = ROCK.generatePoints('#AA00FF', 20, 25);
+    mesh = ROCK.generatePoints(COLOR, POLYGONS, 25);
     scene.add(mesh);
 }
 
@@ -62,9 +58,9 @@ function initLight() {
     scene.add(dirLight);
     
     // Wireframe of light
-    const helper = new THREE.SpotLightHelper(dirLight, 5);
-    dirLight.add(helper);
-    scene.add(helper);
+    // const helper = new THREE.SpotLightHelper(dirLight, 5);
+    // dirLight.add(helper);
+    // scene.add(helper);
 
     // Background light
     const light = new THREE.AmbientLight( 0xffffff, 0.6 ); // soft white light
@@ -76,7 +72,7 @@ function initLight() {
 function initControls() {
 
     controls = new ObjectControls(camera, renderer.domElement, mesh);
-    controls.setDistance(50, 2000); // sets the min - max distance able to zoom
+    controls.setDistance(50, 150); // sets the min - max distance able to zoom
     controls.setZoomSpeed(10); // sets the zoom speed ( 0.1 == slow, 1 == fast)
     controls.enableZoom(); // enables zoom
     controls.setRotationSpeed(0.1); // sets a new rotation speed for desktop ( 0.1 == slow, 1 == fast)
@@ -100,20 +96,19 @@ function rotateModel() {
         mesh.rotation.y += 0.001;
         mesh.rotation.z += 0.001;
     }
-
 }
 
 
 // Builds the sidebar for the rock interactions
 function showGUI() {
-    const gui = new GUI({ width: 500 });
+    const gui = new GUI({ width: 200 });
     const rockProperties = {
         'Rock Name': 'Rocky the Rock',
-        'Rock Weight': 15,
+        'Rock Weight': POLYGONS,
         'Feed Rock': function() { alert('Rock fed') },
         'Walk Your Rock': function() { alert('Rock walked') },
         'Background': 'src/textures/default_background.jpg',
-        Color: '#AA00FF'
+        Color: COLOR
     }
 
     gui.add(rockProperties, 'Rock Weight')
@@ -127,14 +122,19 @@ function showGUI() {
     gui.add(rockProperties, 'Rock Name');
     gui.add(rockProperties, 'Feed Rock');
     gui.add(rockProperties, 'Walk Your Rock')
-    gui.add(rockProperties, 'Background', ['src/textures/default_background.jpg','src/textures/nature_background.jpg', 'src/textures/desert.jpg', 'src/textures/snowy_background.jpg']).onChange(value => {
-        initBackground(value);
+    gui.add(rockProperties, 'Background', 
+        ['src/textures/default_background.jpg','src/textures/nature_background.jpg', 'src/textures/desert.jpg', 'src/textures/snowy_background.jpg'])
+            .onChange(value => {
+                initBackground(value);
     });
     
-    gui.addColor( rockProperties, 'Color', 255 ).onChange(value => {
-      scene.clear();
-      ROCK.generatePoints(value);
-      initLight();
+    gui.addColor( rockProperties, 'Color', 255 )
+        .onChange(value => {
+            if(mesh) {
+                for (const m of mesh.children) {
+                    m.material.color.set( value );
+                }
+            } 
     });
 
 }
@@ -142,19 +142,19 @@ function showGUI() {
 
 //Update controller fires every frame in loop
 function animate() {
-    requestAnimationFrame(animate);
-    window.onload = draw;
+    window.onload = initalize;
     window.onresize = onWindowResize;
 
-    rotateModel();
-
+    requestAnimationFrame(animate);
     renderer.render(scene, camera);
+
+    rotateModel();
 
 }
 
 
 // Inital draw function, builds scene and all needed objects
-function draw() {
+function initalize() {
     initRender();
     initScene();
     initLight();
@@ -171,6 +171,6 @@ function draw() {
     window.onresize = onWindowResize;
 }
 
-draw();
+initalize();
 showGUI();
 animate();
