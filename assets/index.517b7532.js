@@ -41,7 +41,7 @@ function K(r, e, o) {
     return s
 }
 const T = (r, e) => { const o = U(e); return o.side = D, F(r, [o]) },
-    U = r => (new p().load("dist/rock_texture.jpg"), new G({ color: r }));
+    U = r => (new p().load("rock_texture.jpg"), new G({ color: r }));
 class X {
     constructor(e) {
         var o = e,
@@ -86,11 +86,11 @@ function $() { a && (a.rotation.x += .001, a.rotation.y += .001, a.rotation.z +=
 
 function ee() {
     const r = new Z({ width: 300 }),
-        e = { "Rock Name": "Rocky the Rock", "Rock Weight": g, "Feed Rock": function() { alert("Rock fed"), e.Hunger += 10, e.Mood = v(e.Stamina, e.Hunger) }, "Walk Your Rock": function() { new X(a), e.Stamina -= 10, e.Mood = v(e.Stamina, e.Hunger) }, Background: "dist/default_background.jpg", Hunger: 50, Stamina: 50, Mood: "HAPPY", Color: w },
+        e = { "Rock Name": "Rocky the Rock", "Rock Weight": g, "Feed Rock": function() { alert("Rock fed"), e.Hunger += 10, e.Mood = v(e.Stamina, e.Hunger) }, "Walk Your Rock": function() { new X(a), e.Stamina -= 10, e.Mood = v(e.Stamina, e.Hunger) }, Background: "default_background.jpg", Hunger: 50, Stamina: 50, Mood: "HAPPY", Color: w },
         o = r.addFolder("Rock Vitals"),
         i = r.addFolder("Rock Actions"),
         n = r.addFolder("Rock Customizations");
-    o.add(e, "Rock Weight").onChange(t => { k = t, c.clear(), y(), S(), M(), x() }), o.add(e, "Rock Name"), i.add(e, "Feed Rock").on, i.add(e, "Walk Your Rock"), n.add(e, "Background", ["dist/default_background.jpg", "dist/nature_background.jpg", "dist/desert.jpg", "dist/snowy_background.jpg"]).onChange(t => { b(t) }), n.addColor(e, "Color", 255).onChange(t => {
+    o.add(e, "Rock Weight").onChange(t => { k = t, c.clear(), y(), S(), M(), x() }), o.add(e, "Rock Name"), i.add(e, "Feed Rock").on, i.add(e, "Walk Your Rock"), n.add(e, "Background", ["default_background.jpg", "nature_background.jpg", "desert.jpg", "snowy_background.jpg"]).onChange(t => { b(t) }), n.addColor(e, "Color", 255).onChange(t => {
         if (a)
             for (const s of a.children) s.material.color.set(t)
     }), o.add(e, "Hunger", 0, 100, 10).listen().disable(), o.add(e, "Stamina", 0, 100, 10).listen().disable(), o.add(e, "Mood").listen().disable()
@@ -100,7 +100,7 @@ function v(r, e) { return (r + e) / 2 >= 50 ? "HAPPY" : "SAD" }
 
 function C() { window.onload = L, window.onresize = R, requestAnimationFrame(C), l.render(c, m), $() }
 
-function L() { Q(), J(), S(), y(), M(), x(), new p().load("dist/default_background.jpg", function(e) { c.background = e }), b(), window.onresize = R }
+function L() { Q(), J(), S(), y(), M(), x(), new p().load("default_background.jpg", function(e) { c.background = e }), b(), window.onresize = R }
 L();
 ee();
 C();
