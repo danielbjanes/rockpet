@@ -8,6 +8,7 @@ import './style.css'
 var controls, mesh, camera, scene, renderer;
 const POLYGONS = 20;
 const COLOR = '#424242'
+var numPolygons = 25
 
 // Create Scene
 function initScene() {
@@ -35,7 +36,7 @@ function initCamera() {
 
 // Create Rock model
 function initModel() {
-    mesh = ROCK.generatePoints(COLOR, POLYGONS, 25);
+    mesh = ROCK.generatePoints(COLOR, POLYGONS, numPolygons);
     scene.add(mesh);
 }
 
@@ -56,7 +57,7 @@ function initLight() {
     const dirLight = new THREE.SpotLight(0xffffff, 2, 0, 15, 1, 1);
     dirLight.position.set(0, 100, 100);
     scene.add(dirLight);
-    
+
     // Wireframe of light
     // const helper = new THREE.SpotLightHelper(dirLight, 5);
     // dirLight.add(helper);
@@ -98,47 +99,76 @@ function rotateModel() {
     }
 }
 
-
 // Builds the sidebar for the rock interactions
 function showGUI() {
-    const gui = new GUI({ width: 200 });
+    const gui = new GUI({ width: 300 });
     const rockProperties = {
         'Rock Name': 'Rocky the Rock',
         'Rock Weight': POLYGONS,
-        'Feed Rock': function() { alert('Rock fed') },
-        'Walk Your Rock': function() { alert('Rock walked') },
+        'Feed Rock': function() {
+          alert('Rock fed');
+          rockProperties.Hunger += 10;
+          rockProperties.Mood = getRockMood(rockProperties.Stamina, rockProperties.Hunger)
+        },
+        'Walk Your Rock': function() {
+          alert('Rock walked');
+          rockProperties.Stamina -= 10
+          rockProperties.Mood = getRockMood(rockProperties.Stamina, rockProperties.Hunger)
+        },
         'Background': 'src/textures/default_background.jpg',
+        'Hunger': 50,
+        'Stamina': 50,
+        'Mood': 'HAPPY',
         Color: COLOR
     }
+    const rockVitals = gui.addFolder('Rock Vitals')
+    const rockActions = gui.addFolder('Rock Actions')
+    const rockCustom = gui.addFolder('Rock Customizations')
 
-    gui.add(rockProperties, 'Rock Weight')
+    rockVitals.add(rockProperties, 'Rock Weight')
         .onChange(value => {
-            polygons = value;
+            numPolygons = value;
             scene.clear();
-            ROCK.generatePoints(rockProperties.Color)
+            initModel();
             initLight();
+            initCamera();
+            initControls();
         });
+    rockVitals.add(rockProperties, 'Rock Name');
 
-    gui.add(rockProperties, 'Rock Name');
-    gui.add(rockProperties, 'Feed Rock');
-    gui.add(rockProperties, 'Walk Your Rock')
-    gui.add(rockProperties, 'Background', 
+    rockActions.add(rockProperties, 'Feed Rock').on;
+    rockActions.add(rockProperties, 'Walk Your Rock')
+
+    rockCustom.add(rockProperties, 'Background',
         ['src/textures/default_background.jpg','src/textures/nature_background.jpg', 'src/textures/desert.jpg', 'src/textures/snowy_background.jpg'])
             .onChange(value => {
                 initBackground(value);
     });
-    
-    gui.addColor( rockProperties, 'Color', 255 )
+
+    rockCustom.addColor( rockProperties, 'Color', 255 )
         .onChange(value => {
             if(mesh) {
                 for (const m of mesh.children) {
                     m.material.color.set( value );
                 }
-            } 
-    });
+            }
+    })
 
+    rockVitals.add( rockProperties, 'Hunger', 0, 100, 10 )
+        .listen()
+        .disable();
+    rockVitals.add( rockProperties, 'Stamina', 0, 100, 10 )
+        .listen()
+        .disable();
+    rockVitals.add( rockProperties, 'Mood')
+        .listen()
+        .disable()
 }
 
+// Helper function for getting rock mood
+function getRockMood(stamina, hunger){
+  return ((stamina + hunger) / 2) >= 50 ? 'HAPPY' : 'SAD'
+}
 
 //Update controller fires every frame in loop
 function animate() {
@@ -161,7 +191,7 @@ function initalize() {
     initModel();
     initCamera();
     initControls();
-    
+
     const loader = new THREE.TextureLoader(); // This is here simply to override the black default texture and put in a background
     loader.load('src/textures/default_background.jpg', function(texture) {
         scene.background = texture;
