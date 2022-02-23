@@ -3,6 +3,7 @@ import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.16/+esm';
 import {ObjectControls} from 'threeJS-object-controls';
 
 import * as ROCK from "./rock"
+import {CharacterControllerDemo} from './walkRock'
 import './style.css'
 
 var controls, mesh, camera, scene, renderer;
@@ -111,7 +112,7 @@ function showGUI() {
           rockProperties.Mood = getRockMood(rockProperties.Stamina, rockProperties.Hunger)
         },
         'Walk Your Rock': function() {
-          alert('Rock walked');
+          new CharacterControllerDemo(mesh);
           rockProperties.Stamina -= 10
           rockProperties.Mood = getRockMood(rockProperties.Stamina, rockProperties.Hunger)
         },
