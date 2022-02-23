@@ -49,11 +49,39 @@ npm ERR! This is probably not a problem with npm. There is likely additional log
 Run: `npm install` and then `npm run dev` 
 
 ### How to deploy to GitHub Pages
-1. Create a dist directory
-2. Drag your index.html, css file, js files and images used for textures to the dist folder
-3. Edit `package.json` and add `"deploy": "gh-pages -d dist"` under scripts.
-4. Run `npm install gh=pages`
-5. Run `npm run deploy`
+1. Create a dist directory by `mkdir dist` in the parent directory
+2. Run `npm build`. This should create an `assets` directory within `dist`
+3. Copy ALL textures, `main.js, rock.js, style.css, walkRock.js` to `dist`. (Copy all working files and textures)
+4. Edit `package.json` and add `"deploy": "gh-pages -d dist"` under scripts.
+5. Run `npm install gh-pages`
+6. This should populate the `assets` folder with files. Enter `index.xxxxxxxx.js` and edit the file so all texture calls do not have any directory locations attached such that: `textures/image.jpg -> image.jpg`. Otherwise your textures will NOT load. Save the file.
+7. Enter the index.html file. This will prevent the page from hanging by looking for the appropriate files. Change the block within the file similarly to this example:
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="shortcut icon" href="about:blank">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rock Pet</title>
+    <script type="module" crossorigin src="assets/index.xxxxxxxx.js"></script>
+    <link rel="modulepreload" href="assets/vendor.xxxxxxxx.js">
+    <link rel="stylesheet" href="assets/index.xxxxxxxx.css">
+</head>
+
+<body>
+    <div id="app"></div>
+
+    <canvas id="bg"></canvas>
+
+
+</body>
+
+</html>
+```
+
+8. Run `npm run deploy` This will send all of your changes to the appropriate branch and then deploy on GitHub Pages for everyone to see. 
 
 You may have to edit the pathways for all of the files in the generated files in the dist directory. Since everything is statically rendered on GitHub Pages this will be required if you do not see any textures.
 
