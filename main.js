@@ -1,51 +1,48 @@
-import './style.css'
 import * as THREE from "three";
-
-import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry';
-import * as SceneUtils from 'three/examples/jsm/utils/SceneUtils'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import Stats from 'three/examples/jsm/libs/stats.module'
 import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.16/+esm';
+import {ObjectControls} from 'threeJS-object-controls';
+
+import * as ROCK from "./rock"
+import {CharacterControllerDemo} from './walkRock'
+import './style.css'
+
+var controls, mesh, camera, scene, renderer;
+const POLYGONS = 20;
+const COLOR = '#424242'
+var numPolygons = 25
+
+// Create Scene
+function initScene() {
+    scene = new THREE.Scene();
+}
 
 
-var renderer = new THREE.WebGLRenderer();
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
-
-var polygons = 15
-var mesh;
-
-var dirLight = new THREE.SpotLight(0xffffff, 2, 0, 15, 1, 1);
-dirLight.position.set(222, 222, 222);
-let helper = new THREE.SpotLightHelper(dirLight, 5);
-dirLight.add(helper);
-
-var spotlight2 = new THREE.SpotLight(0xffffff, 1, 0, 15, 1, 1);
-spotlight2.position.set(-400, -600, 100);
-let helper2 = new THREE.SpotLightHelper(spotlight2, 0xFF0000);
-spotlight2.add(helper2);
-
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-var scene = new THREE.Scene();
-
+// Create Renderer
 function initRender() {
     renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 }
 
 
+// Create Camera
 function initCamera() {
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
-    camera.position.set(300, 100, 600);
+    camera.position.set(0, 0, 100);
+    // camera.lookAt(new THREE.Vector3(0,,0)); // Set look at coordinate like this
 }
 
 
-function initScene() {
-    scene = new THREE.Scene();
+// Create Rock model
+function initModel() {
+    mesh = ROCK.generatePoints(COLOR, POLYGONS, numPolygons);
+    scene.add(mesh);
 }
 
+
+// Create background image
 function initBackground(fileLocation) {
     const loader = new THREE.TextureLoader();
     loader.load(fileLocation, function(texture) {
@@ -54,115 +51,35 @@ function initBackground(fileLocation) {
 
 }
 
-function initModel() {
-    generatePoints();
+// Create lights
+function initLight() {
 
-}
+    //Spot light
+    const dirLight = new THREE.SpotLight(0xffffff, 2, 0, 15, 1, 1);
+    dirLight.position.set(0, 100, 100);
+    scene.add(dirLight);
 
-//Methods to generate model calls
-function generatePoints() {
-    // Randomly generate a set of vertices
-    var points = [];
-    for (var i = 0; i < polygons; i++) {
-        //The position of the coordinate point of the xyz axis will be randomly generated within + - 150
-        var randomX = -150 + Math.round(Math.random() * 300);
-        var randomY = -150 + Math.round(Math.random() * 300);
-        var randomZ = -150 + Math.round(Math.random() * 300);
+    // Wireframe of light
+    // const helper = new THREE.SpotLightHelper(dirLight, 5);
+    // dirLight.add(helper);
+    // scene.add(helper);
 
-        //Create a coordinate point and add it to the array
-        points.push(new THREE.Vector3(randomX, randomY, randomZ));
-    }
-
-    //Declare a mesh object that holds all points
-    var spGroup = new THREE.Object3D();
-    //Declare a mesh base material
-    var material = new THREE.MeshPhongMaterial({ color: 0xff0000, transparent: false });
-    //Traversing the array to generate small ball points and adding them to the object
-    points.forEach(function(point) {
-
-        var spGeom = new THREE.SphereGeometry(1);
-
-        var spMesh = new THREE.Mesh(spGeom, material);
-        spMesh.position.copy(point); //Set the position of the current ball to the coordinates of the current point
-        //scene.add(spMesh); uncomment this to see the point for the convex shape
-    });
-    // Add objects that hold all points to the scene
-    scene.add(spGroup);
-
-    // Use these points to instantiate a THREE.ConvexGeometry Geometry objects
-    var hullGeometry = new ConvexGeometry(points);
-    //Build model
-    var hullMesh = createMesh(hullGeometry);
-    //Add to scene
-    mesh = hullMesh;
+    // Background light
+    const light = new THREE.AmbientLight( 0xffffff, 0.6 ); // soft white light
+    scene.add( light );
 }
 
 
-function createMaterial() {
-    // create a texture loader.
-    const textureLoader = new THREE.TextureLoader();
-
-    // load a texture
-    const texture = textureLoader.load(
-        'rock_texture.jpg',
-    );
-
-    // create a "standard" material using
-    // the texture we just loaded as a color map
-    const material = new THREE.MeshStandardMaterial({
-        map: texture,
-    });
-
-    return material;
-}
-
-function createMesh(geom) {
-
-    // Instantiate a green, translucent material
-
-    console.log(geom);
-    var meshMaterial = createMaterial();
-    meshMaterial.side = THREE.DoubleSide; //Set the material to be visible on both sides
-    var wireFrameMat = new THREE.MeshBasicMaterial();
-    wireFrameMat.wireframe = true; //Render materials as wireframes
-
-
-
-
-    ////////////////////////
-
-
-
-
-    // Assign both materials to geometry
-    var mesh = SceneUtils.createMultiMaterialObject(geom, [meshMaterial, wireFrameMat]);
-
-    return mesh;
-}
-
-//User interaction plug in left mouse button press and hold rotation, right mouse button press and hold translation, scroll wheel zoom
-var controls;
-
+// Create camera controls for the mesh
 function initControls() {
 
-    controls = new OrbitControls(camera, renderer.domElement);
-
-    // If you use the animate method, delete this function
-    //controls.addEventListener( 'change', render );
-    // Whether there is inertia in the meaning of damping or rotation when the animation is recycled
-    controls.enableDamping = true;
-    //Dynamic damping coefficient is the mouse drag rotation sensitivity
-    //controls.dampingFactor = 0.25;
-    //Can I zoom
-    controls.enableZoom = true;
-    //Auto rotate or not
-    controls.autoRotate = true;
-    //Set the maximum distance between the camera and the origin
-    controls.minDistance = 200;
-    //Set the maximum distance between the camera and the origin
-    controls.maxDistance = 1600;
-    //Enable right drag
-    controls.enablePan = true;
+    controls = new ObjectControls(camera, renderer.domElement, mesh);
+    controls.setDistance(50, 150); // sets the min - max distance able to zoom
+    controls.setZoomSpeed(10); // sets the zoom speed ( 0.1 == slow, 1 == fast)
+    controls.enableZoom(); // enables zoom
+    controls.setRotationSpeed(0.1); // sets a new rotation speed for desktop ( 0.1 == slow, 1 == fast)
+    controls.enableVerticalRotation(); // enables the vertical rotation
+    controls.enableHorizontalRotation(); // enables the horizontal rotation
 }
 
 
@@ -174,84 +91,117 @@ function onWindowResize() {
 
 }
 
+
 function rotateModel() {
     if (mesh) {
         mesh.rotation.x += 0.001;
         mesh.rotation.y += 0.001;
         mesh.rotation.z += 0.001;
-        scene.add(mesh);
     }
-
 }
 
 // Builds the sidebar for the rock interactions
 function showGUI() {
-    const gui = new GUI({ width: 500 });
+    const gui = new GUI({ width: 300 });
     const rockProperties = {
         'Rock Name': 'Rocky the Rock',
-        'Rock Weight': 15,
-        'Feed Rock': function() { alert('Rock fed') },
-        'Walk Your Rock': function() { alert('Rock walked') },
-        'Background': 'Background 1'
+        'Rock Weight': POLYGONS,
+        'Feed Rock': function() {
+          alert('Rock fed');
+          rockProperties.Hunger += 10;
+          rockProperties.Mood = getRockMood(rockProperties.Stamina, rockProperties.Hunger)
+        },
+        'Walk Your Rock': function() {
+          new CharacterControllerDemo(mesh);
+          rockProperties.Stamina -= 10
+          rockProperties.Mood = getRockMood(rockProperties.Stamina, rockProperties.Hunger)
+        },
+        'Background': 'src/textures/default_background.jpg',
+        'Hunger': 50,
+        'Stamina': 50,
+        'Mood': 'HAPPY',
+        Color: COLOR
     }
+    const rockVitals = gui.addFolder('Rock Vitals')
+    const rockActions = gui.addFolder('Rock Actions')
+    const rockCustom = gui.addFolder('Rock Customizations')
 
-    gui.add(rockProperties, 'Rock Weight')
+    rockVitals.add(rockProperties, 'Rock Weight')
         .onChange(value => {
-            polygons = value;
+            numPolygons = value;
             scene.clear();
-            generatePoints();
+            initModel();
             initLight();
+            initCamera();
+            initControls();
         });
-    gui.add(rockProperties, 'Rock Name');
-    gui.add(rockProperties, 'Feed Rock');
-    gui.add(rockProperties, 'Walk Your Rock')
-    gui.add(rockProperties, 'Texture', ['nature_background.jpg', 'desert.jpg', 'snowy_background.jpg']).onChange(value => {
-        initBackground(value);
+    rockVitals.add(rockProperties, 'Rock Name');
+
+    rockActions.add(rockProperties, 'Feed Rock').on;
+    rockActions.add(rockProperties, 'Walk Your Rock')
+
+    rockCustom.add(rockProperties, 'Background',
+        ['src/textures/default_background.jpg','src/textures/nature_background.jpg', 'src/textures/desert.jpg', 'src/textures/snowy_background.jpg'])
+            .onChange(value => {
+                initBackground(value);
     });
 
+    rockCustom.addColor( rockProperties, 'Color', 255 )
+        .onChange(value => {
+            if(mesh) {
+                for (const m of mesh.children) {
+                    m.material.color.set( value );
+                }
+            }
+    })
+
+    rockVitals.add( rockProperties, 'Hunger', 0, 100, 10 )
+        .listen()
+        .disable();
+    rockVitals.add( rockProperties, 'Stamina', 0, 100, 10 )
+        .listen()
+        .disable();
+    rockVitals.add( rockProperties, 'Mood')
+        .listen()
+        .disable()
 }
 
-
-
-function initLight() {
-    scene.add(dirLight);
-    scene.add(helper);
-    scene.add(spotlight2);
-    scene.add(helper2);
+// Helper function for getting rock mood
+function getRockMood(stamina, hunger){
+  return ((stamina + hunger) / 2) >= 50 ? 'HAPPY' : 'SAD'
 }
 
+//Update controller fires every frame in loop
 function animate() {
-    //Update controller
+    window.onload = initalize;
+    window.onresize = onWindowResize;
 
     requestAnimationFrame(animate);
-    window.onload = draw;
-    window.onresize = onWindowResize;
+    renderer.render(scene, camera);
 
     rotateModel();
 
-    renderer.render(scene, camera);
-    stats.update()
-
 }
 
-function draw() {
+
+// Inital draw function, builds scene and all needed objects
+function initalize() {
     initRender();
     initScene();
     initLight();
     initModel();
     initCamera();
     initControls();
+
     const loader = new THREE.TextureLoader(); // This is here simply to override the black default texture and put in a background
-    loader.load('default_background.jpg', function(texture) {
+    loader.load('src/textures/default_background.jpg', function(texture) {
         scene.background = texture;
     });
     initBackground();
 
-
     window.onresize = onWindowResize;
 }
-const stats = Stats()
-document.body.appendChild(stats.dom)
+
+initalize();
 showGUI();
 animate();
-draw();
