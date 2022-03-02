@@ -5,6 +5,8 @@ import {ObjectControls} from 'threeJS-object-controls';
 import * as ROCK from "./rock"
 import {CharacterControllerDemo} from './walkRock'
 import './style.css'
+import { retrieve, save } from "./data_management";
+
 
 var controls, mesh, camera, scene, renderer;
 const POLYGONS = 20;
@@ -37,7 +39,16 @@ function initCamera() {
 
 // Create Rock model
 function initModel() {
-    mesh = ROCK.generatePoints(COLOR, POLYGONS, numPolygons);
+
+    const loader = new THREE.ObjectLoader();
+    const obj = retrieve('mesh')
+    if(obj) mesh = loader.parse(obj)
+
+    if(!mesh) {
+        mesh = ROCK.generatePoints(COLOR, POLYGONS, numPolygons);
+        save('mesh', mesh)
+    }
+
     scene.add(mesh);
 }
 
@@ -102,7 +113,7 @@ function rotateModel() {
 
 // Builds the sidebar for the rock interactions
 function showGUI() {
-    const gui = new GUI({ width: 300 });
+    const gui = new GUI({ width: 200 });
     const rockProperties = {
         'Rock Name': 'Rocky the Rock',
         'Rock Weight': POLYGONS,
@@ -152,6 +163,7 @@ function showGUI() {
                 for (const m of mesh.children) {
                     m.material.color.set( value );
                 }
+                save('mesh', mesh)
             }
     })
 
