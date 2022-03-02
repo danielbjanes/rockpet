@@ -171,6 +171,7 @@ function showGUI() {
             initLight();
             initCamera();
             initControls();
+            add3dText();
         });
 
     rockActions.add(rockProperties, 'Feed Rock').on;
