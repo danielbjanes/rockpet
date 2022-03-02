@@ -7,11 +7,10 @@ import {CharacterControllerDemo} from './walkRock'
 import './style.css'
 import { retrieve, save } from "./data_management";
 
-
+const RADIUS = 20;
 var controls, mesh, camera, scene, renderer;
-const POLYGONS = 20;
 const COLOR = '#424242'
-var numPolygons = 25
+var numPolygons = retrieve('polygons') | 25
 
 // Create Scene
 function initScene() {
@@ -45,7 +44,7 @@ function initModel() {
     if(obj) mesh = loader.parse(obj)
 
     if(!mesh) {
-        mesh = ROCK.generatePoints(COLOR, POLYGONS, numPolygons);
+        mesh = ROCK.generatePoints(COLOR, RADIUS, numPolygons);
         save('mesh', mesh)
     }
 
@@ -116,7 +115,7 @@ function showGUI() {
     const gui = new GUI({ width: 200 });
     const rockProperties = {
         'Rock Name': 'Rocky the Rock',
-        'Rock Weight': POLYGONS,
+        'Rock Weight': numPolygons,
         'Feed Rock': function() {
           alert('Rock fed');
           rockProperties.Hunger += 10;
@@ -140,6 +139,9 @@ function showGUI() {
     rockVitals.add(rockProperties, 'Rock Weight')
         .onChange(value => {
             numPolygons = value;
+            mesh = ROCK.generatePoints(COLOR, RADIUS, numPolygons);
+            save('mesh', mesh)
+            save('polygons', numPolygons)
             scene.clear();
             initModel();
             initLight();
@@ -192,7 +194,6 @@ function animate() {
     renderer.render(scene, camera);
 
     rotateModel();
-
 }
 
 
