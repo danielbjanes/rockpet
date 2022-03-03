@@ -13,7 +13,7 @@ const RADIUS = 20;
 var controls, mesh, camera, scene, renderer, text;
 const COLOR = '#424242'
 var numPolygons = retrieve('polygons') | 25
-var ROCK_NAME = retrieve('name') // default name for rock
+var meshName = retrieve('name') ? retrieve('name') : 'Rocky'
 
 // Create Scene
 function initScene() {
@@ -115,9 +115,9 @@ function rotateModel() {
 
 function rotateText() {
     if (text) { // Change however 
-        text.rotation.y = Math.sin(Date.now() * 0.001) * Math.PI * 0.05;
-        text.rotation.x = Math.tan(Date.now() * -0.001) * -Math.PI * -0.05;
-        text.rotation.x = Math.cos(Date.now() * -0.001) * -Math.PI * -0.05;
+        text.rotation.y = Math.sin(Date.now() * 0.001) * Math.PI * 0.01;
+        text.rotation.x = Math.tan(Date.now() * -0.001) * -Math.PI * -0.01;
+        text.rotation.x = Math.cos(Date.now() * -0.001) * -Math.PI * -0.01;
     }
 }
 
@@ -125,7 +125,7 @@ function rotateText() {
 function showGUI() {
     const gui = new GUI({ width: 200 });
     const rockProperties = {
-        'Rock Name': ROCK_NAME,
+        'Rock Name': meshName,
         'Rock Weight': numPolygons,
         'Feed Rock': function() {
             alert('Rock fed');
@@ -149,15 +149,15 @@ function showGUI() {
     const rockCustom = gui.addFolder('Rock Customizations')
 
     rockName.add(rockProperties, 'Rock Name').onChange(value => {
-        ROCK_NAME = value;
-        scene.remove(text)
-        add3dText(ROCK_NAME);
-        save('name', ROCK_NAME)
+        meshName = value;
+        save('name', meshName)
+
         scene.clear();
         initModel();
         initLight();
         initCamera();
         initControls();
+        add3dText();
     });
 
     rockVitals.add(rockProperties, 'Rock Weight')
@@ -166,6 +166,7 @@ function showGUI() {
             mesh = ROCK.generatePoints(COLOR, RADIUS, numPolygons);
             save('mesh', mesh)
             save('polygons', numPolygons)
+
             scene.clear();
             initModel();
             initLight();
@@ -208,17 +209,6 @@ function getRockMood(stamina, hunger) {
     return ((stamina + hunger) / 2) >= 50 ? 'HAPPY' : 'SAD'
 }
 
-//Update controller fires every frame in loop
-function animate() {
-    window.onload = initalize;
-    window.onresize = onWindowResize;
-
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);
-
-    rotateModel();
-    rotateText();
-}
 
 function add3dText() {
     // Fonts
@@ -227,7 +217,7 @@ function add3dText() {
     loader.load('src/font/Retronoid_Regular.json', function(font) {
         const base = new THREE.TextureLoader().load('src/textures/blue.jpg');
 
-        const geometry = new TextGeometry(ROCK_NAME, {
+        const geometry = new TextGeometry(meshName, {
             font: font,
             size: 5,
             height: 6,
@@ -258,7 +248,6 @@ function add3dText() {
         text.position.x = 0 - center.x
         text.position.y = 20
         text.updateMatrixWorld();
-        console.log(center)
         text.localToWorld(center)
 
         // This block is for overlaying a wireframe on top of the text
@@ -272,6 +261,19 @@ function add3dText() {
 
     });
 }
+
+
+//Update controller fires every frame in loop
+function animate() {
+    window.onresize = onWindowResize;
+
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+
+    rotateModel();
+    rotateText();
+}
+
 
 // Inital draw function, builds scene and all needed objects
 function initalize() {
