@@ -158,6 +158,16 @@ function rotateText() {
 }
 
 /**
+ * used for rebuilding the scene and removing duplicate line calls
+ */
+function rebuildScene() {
+    scene.clear();
+    initModel();
+    initLight();
+    initCamera();
+    initControls();
+}
+/**
  * Function that contains and creates all GUI elements along with lambda functionality
  */
 function showGUI() {
@@ -190,11 +200,7 @@ function showGUI() {
         meshName = value;
         save('name', meshName)
 
-        scene.remove(meshName);
-        //initModel(); Don't think we even need these here with remove
-        //initLight();
-        //initCamera();
-        //initControls();
+        rebuildScene();
         add3dText(font);
     });
 
@@ -207,7 +213,7 @@ function showGUI() {
             font = value
             save('font', font)
 
-            scene.remove(text);
+            rebuildScene();
             add3dText(font);
         });
 
@@ -218,11 +224,7 @@ function showGUI() {
             save('mesh', mesh)
             save('polygons', numPolygons)
 
-            scene.clear();
-            initModel();
-            initLight();
-            initCamera();
-            initControls();
+            rebuildScene();
             add3dText(font);
         });
 
