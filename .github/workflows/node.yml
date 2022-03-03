@@ -27,10 +27,12 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+    - run: npm i vite
+    - run: npm update
     - run: echo "Installing npm ..."
     - run: npm install
-    - run: npm install --save threejs-object-controls
     - run: echo "npm installed"
     - run: echo "Starting Project..."
+    - run: npm run build
     - run: npm run dev
     - run: echo "Project Running"

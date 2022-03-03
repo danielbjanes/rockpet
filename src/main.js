@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.16/+esm';
-import { ObjectControls } from 'threeJS-object-controls';
+import { ObjectControls } from './ObjectControls';
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
 
