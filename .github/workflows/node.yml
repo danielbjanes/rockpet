@@ -27,11 +27,13 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+    - run: echo "Installing vite ..."
     - run: npm i vite
-    - run: npm update
     - run: echo "Installing npm ..."
     - run: npm install
+    - run: echo "Running NPM update ..."
+    - run: npm update
     - run: echo "npm installed"
-    - run: echo "Starting Project..."
+    - run: echo "Building Project..."
     - run: npm run build
-    - run: echo "Project Running"
+    - run: echo "Project Built without error"
