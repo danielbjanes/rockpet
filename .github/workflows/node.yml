@@ -31,6 +31,7 @@ jobs:
     - run: npm update
     - run: echo "Installing npm ..."
     - run: npm install
+    - run: npm install --save threejs-object-controls
     - run: echo "npm installed"
     - run: echo "Starting Project..."
     - run: npm run build
