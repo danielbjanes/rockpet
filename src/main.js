@@ -10,19 +10,35 @@ import './style.css'
 import { retrieve, save } from "./data_management";
 
 const RADIUS = 20;
-var controls, mesh, camera, scene, renderer, text;
 const COLOR = '#424242'
+
+
+/**
+ * Controls - Orbit controls
+ * Mesh - Object (Rock) mesh
+ * Camera - Camera object
+ * Scene - Scene that all objects are displayed on
+ * Renderer - Used for processing lighting
+ * Text - Contains the Rock Name
+ */
+var controls, mesh, camera, scene, renderer, text, font;
+font = retrieve('font') ? retrieve('font') : 'src/font/Retronoid_Regular.json'
 var numPolygons = retrieve('polygons') | 25
 var meshName = retrieve('name') ? retrieve('name') : 'Rocky'
 
-// Create Scene
+/**
+ * Initializes the scene
+ */
 function initScene() {
     scene = new THREE.Scene();
 }
 
 
-// Create Renderer
+/**
+ * Initializes the renderer (WebGL) and grabs the window size
+ */
 function initRender() {
+    // Uses WebGL to render all items with THREE JS onto the web browser.
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -31,15 +47,22 @@ function initRender() {
 }
 
 
-// Create Camera
+/**
+ * Initializes the camera setting and applies a fixed position
+ * based on the web browser window
+ */
 function initCamera() {
+    // Sets a specific camera perspective that will center the camera onto the rock
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
     camera.position.set(0, 0, 100);
     // camera.lookAt(new THREE.Vector3(0,,0)); // Set look at coordinate like this
 }
 
 
-// Create Rock model
+/**
+ * Initializes the custom model for the rock.
+ * Implements an object loader and adds to scene
+ */
 function initModel() {
 
     const loader = new THREE.ObjectLoader();
@@ -55,8 +78,12 @@ function initModel() {
 }
 
 
-// Create background image
+/**
+ * Initializes the standard background
+ * @param {*} fileLocation The location of the textures for the background
+ */
 function initBackground(fileLocation) {
+    // Loader used to grab a texture and then apply it.
     const loader = new THREE.TextureLoader();
     loader.load(fileLocation, function(texture) {
         scene.background = texture;
@@ -64,18 +91,15 @@ function initBackground(fileLocation) {
 
 }
 
-// Create lights
+/**
+ * Initializes the lighting for the scenes by ading a spotlight and amvient lighting
+ */
 function initLight() {
 
     //Spot light
-    const dirLight = new THREE.SpotLight(0xffffff, 2, 0, 15, 1, 1);
-    dirLight.position.set(0, 100, 100);
+    const dirLight = new THREE.SpotLight(0xffffff, 2, 0, 15, 1, 1); // color, intensity, distance, angle, penumbra, decay
+    dirLight.position.set(0, 100, 100); // Provide nice shadows at this angle
     scene.add(dirLight);
-
-    // Wireframe of light
-    // const helper = new THREE.SpotLightHelper(dirLight, 5);
-    // dirLight.add(helper);
-    // scene.add(helper);
 
     // Background light
     const light = new THREE.AmbientLight(0xffffff, 0.6); // soft white light
@@ -83,7 +107,10 @@ function initLight() {
 }
 
 
-// Create camera controls for the mesh
+/**
+ * Initializes the orbit controls so the user can zoom, rotate, set distance.
+ * Optional to drag if added.
+ */
 function initControls() {
 
     controls = new ObjectControls(camera, renderer.domElement, mesh);
@@ -96,7 +123,9 @@ function initControls() {
 }
 
 
-//Function triggered by window change
+/**
+ * Resizes the environment to fit within the browsers width and height
+ */
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -104,7 +133,10 @@ function onWindowResize() {
 
 }
 
-
+/**
+ * Continuous rotation of the rock to provide
+ * 'life' to the model
+ */
 function rotateModel() {
     if (mesh) {
         mesh.rotation.x += 0.001;
@@ -113,15 +145,21 @@ function rotateModel() {
     }
 }
 
+/**
+ * Continuous rotation of the text {Rock Name}
+ * to provide FUNK
+ */
 function rotateText() {
     if (text) { // Change however 
-        text.rotation.y = Math.sin(Date.now() * 0.001) * Math.PI * 0.01;
-        text.rotation.x = Math.tan(Date.now() * -0.001) * -Math.PI * -0.01;
+        text.rotation.y = Math.sin(Date.now() * 0.001) * Math.PI * 0.01; // These allow for the constant wave-form spinning 
+        text.rotation.x = Math.tan(Date.now() * -0.001) * -Math.PI * -0.01; // For that funky retro look
         text.rotation.x = Math.cos(Date.now() * -0.001) * -Math.PI * -0.01;
     }
 }
 
-// Builds the sidebar for the rock interactions
+/**
+ * Function that contains and creates all GUI elements along with lambda functionality
+ */
 function showGUI() {
     const gui = new GUI({ width: 200 });
     const rockProperties = {
@@ -152,13 +190,26 @@ function showGUI() {
         meshName = value;
         save('name', meshName)
 
-        scene.clear();
-        initModel();
-        initLight();
-        initCamera();
-        initControls();
-        add3dText();
+        scene.remove(meshName);
+        //initModel(); Don't think we even need these here with remove
+        //initLight();
+        //initCamera();
+        //initControls();
+        add3dText(font);
     });
+
+    rockName.add(rockProperties, 'Font', ['src/font/NM_Regular.json',
+            'src/font/Retronoid_Regular.json',
+            'src/font/Rubik_Bold.json'
+        ])
+        .onChange(value => {
+
+            font = value
+            save('font', font)
+
+            scene.remove(text);
+            add3dText(font);
+        });
 
     rockVitals.add(rockProperties, 'Rock Weight')
         .onChange(value => {
@@ -172,13 +223,17 @@ function showGUI() {
             initLight();
             initCamera();
             initControls();
-            add3dText();
+            add3dText(font);
         });
 
     rockActions.add(rockProperties, 'Feed Rock').on;
     rockActions.add(rockProperties, 'Walk Your Rock')
 
-    rockCustom.add(rockProperties, 'Background', ['src/textures/default_background.jpg', 'src/textures/nature_background.jpg', 'src/textures/desert.jpg', 'src/textures/snowy_background.jpg'])
+    rockCustom.add(rockProperties, 'Background', ['src/textures/default_background.jpg',
+            'src/textures/nature_background.jpg',
+            'src/textures/desert.jpg',
+            'src/textures/snowy_background.jpg'
+        ])
         .onChange(value => {
             initBackground(value);
         });
@@ -204,17 +259,27 @@ function showGUI() {
         .disable()
 }
 
-// Helper function for getting rock mood
+/**
+ * Helper function for getting rock mood
+ * @param {*} stamina The rocks stamina
+ * @param {*} hunger The rocks hunger
+ * @returns Happy or Sad
+ */
 function getRockMood(stamina, hunger) {
     return ((stamina + hunger) / 2) >= 50 ? 'HAPPY' : 'SAD'
 }
 
-
-function add3dText() {
+/**
+ * Function used for creating and rendering a custom set of 3D text.
+ * Used in displaying the name of the rock to the user.
+ */
+function add3dText(value) {
     // Fonts
     const loader = new FontLoader();
 
-    loader.load('src/font/Retronoid_Regular.json', function(font) {
+    // Loads a JSON that contains the data of a .tff file.
+    // Used to specify a font for the 3D text.
+    loader.load(value, function(font) {
         const base = new THREE.TextureLoader().load('src/textures/blue.jpg');
 
         const geometry = new TextGeometry(meshName, {
@@ -224,14 +289,15 @@ function add3dText() {
             curveSegments: 12,
         });
 
-        // Computed a bounding box that is used to help find the center
+        // Computes a bounding box that is used to help find the center
+        // Just a box around the constructed object
         // (used for centering text)
         geometry.computeBoundingBox();
-        var center = new THREE.Vector3();
-        geometry.boundingBox.getCenter(center);
+        var center = new THREE.Vector3(); // a vector that will contain the center of the box
+        geometry.boundingBox.getCenter(center); //Grabs the center of that bounding box
 
-        const material = new THREE.MeshPhongMaterial({
-
+        const material = new THREE.MeshPhongMaterial({ // Mesh Phong is just a certain type of material. Can be changed
+            // Change the look and feel of the 3d TEXT
             map: base,
             alphaMap: base,
             reflectivity: 4,
@@ -243,27 +309,29 @@ function add3dText() {
 
         });
 
-        text = new THREE.Mesh(geometry, material)
+        text = new THREE.Mesh(geometry, material) // Applying both the geometry of the text and material for display
 
-        text.position.x = 0 - center.x
+        text.position.x = 0 - center.x // Removes the center distance from the x coordinate to center on screen compared to rock
         text.position.y = 20
-        text.updateMatrixWorld();
-        text.localToWorld(center)
+        text.updateMatrixWorld(); // Updates global transform of the object and its children.
+        text.localToWorld(center) // Updates the vector from local space to world space.
 
         // This block is for overlaying a wireframe on top of the text
         // so it can look cooler (optional / removable)
         var geo = new THREE.EdgesGeometry(text.geometry); // or WireframeGeometry
         var mat = new THREE.LineBasicMaterial({ color: 0x222222 });
         var wireframe = new THREE.LineSegments(geo, mat);
-        text.add(wireframe);
 
+        text.add(wireframe); // This is just for flavor. Can be removed.
         scene.add(text)
 
     });
 }
 
 
-//Update controller fires every frame in loop
+/**
+ * Animation function update controller that updates each frame
+ */
 function animate() {
     window.onresize = onWindowResize;
 
@@ -275,7 +343,9 @@ function animate() {
 }
 
 
-// Inital draw function, builds scene and all needed objects
+/**
+ * Inital draw function, builds scene and all needed objects
+ */
 function initalize() {
     initRender();
     initScene();
@@ -283,7 +353,7 @@ function initalize() {
     initModel();
     initCamera();
     initControls();
-    add3dText();
+    add3dText(font);
 
     const loader = new THREE.TextureLoader(); // This is here simply to override the black default texture and put in a background
     loader.load('src/textures/default_background.jpg', function(texture) {
@@ -294,6 +364,11 @@ function initalize() {
     window.onresize = onWindowResize;
 }
 
+// Required to get initial set display
 initalize();
+
+// Required to get initial display
 showGUI();
+
+// Required to get animations to display
 animate();
