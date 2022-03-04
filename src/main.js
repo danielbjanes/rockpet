@@ -5,7 +5,8 @@ import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
 
 import * as ROCK from "./rock"
-import { CharacterControllerDemo } from './walkRock'
+import { walkRock } from './walkRock'
+// import { feedRock } from "./feedRock";
 import './style.css'
 import { retrieve, save } from "./data_management";
 
@@ -82,7 +83,7 @@ function initModel() {
  * Initializes the standard background
  * @param {*} fileLocation The location of the textures for the background
  */
-function initBackground(fileLocation) {
+export function initBackground(fileLocation) {
     // Loader used to grab a texture and then apply it.
     const loader = new THREE.TextureLoader();
     loader.load(fileLocation, function(texture) {
@@ -176,12 +177,13 @@ function showGUI() {
         'Rock Name': meshName,
         'Rock Weight': numPolygons,
         'Feed Rock': function() {
-            alert('Rock fed');
+            new feedRock();
             rockProperties.Hunger += 10;
             rockProperties.Mood = getRockMood(rockProperties.Stamina, rockProperties.Hunger)
         },
         'Walk Your Rock': function() {
-            new CharacterControllerDemo(mesh);
+            new walkRock(mesh);
+            walkRock.start
             rockProperties.Stamina -= 10
             rockProperties.Mood = getRockMood(rockProperties.Stamina, rockProperties.Hunger)
         },
@@ -330,6 +332,35 @@ function add3dText(value) {
     });
 }
 
+function feedRock() {
+    const mouse = new THREE.Vector2();
+        const intersectionPoint = new THREE.Vector3();
+        const planeNormal = new THREE.Vector3();
+        const plane = new THREE.Plane();
+        const raycaster = new THREE.Raycaster();
+
+        window.addEventListener('mousemove', function(e) {
+            mouse.x = (e.clientX / this.window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / this.window.innerHeight) * 2 + 1;
+            planeNormal.copy(camera.position).normalize();
+            plane.setFromNormalAndCoplanarPoint(planeNormal, scene.position);
+            raycaster.setFromCamera(mouse, camera);
+            raycaster.ray.intersectPlane(plane, intersectionPoint);
+        })
+
+        window.addEventListener('click', addFood);
+        function addFood(e) {
+            const sphereGeo = new THREE.SphereGeometry(1, 30, 30);
+            const spherMat = new THREE.MeshStandardMaterial({
+                color: COLOR,
+                metalness: 0,
+                roughness: 0
+            });
+            const sphereMesh = new THREE.Mesh(sphereGeo, spherMat);
+            scene.add(sphereMesh);
+            window.removeEventListener('click', addFood);
+        }
+}
 
 /**
  * Animation function update controller that updates each frame
