@@ -5,7 +5,7 @@ import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
 
 import * as ROCK from "./rock"
-import { walkRock } from './walkRock'
+// import { walkRock } from './walkRock'
 // import { feedRock } from "./feedRock";
 import './style.css'
 import { retrieve, save } from "./data_management";
@@ -168,6 +168,13 @@ function rebuildScene() {
     initCamera();
     initControls();
 }
+
+const backgrounds = ['src/textures/default_background.jpg',
+'src/textures/nature_background.jpg',
+'src/textures/desert.jpg',
+'src/textures/snowy_background.jpg'
+]
+
 /**
  * Function that contains and creates all GUI elements along with lambda functionality
  */
@@ -177,15 +184,28 @@ function showGUI() {
         'Rock Name': meshName,
         'Rock Weight': numPolygons,
         'Feed Rock': function() {
-            new feedRock();
-            rockProperties.Hunger += 10;
-            rockProperties.Mood = getRockMood(rockProperties.Stamina, rockProperties.Hunger)
+            if (rockProperties.Hunger < 95) {
+                new feedRock();
+                rockProperties.Hunger += 10;
+                rockProperties.Stamina += 5;
+                rockProperties.Mood = getRockMood(rockProperties.Stamina, rockProperties.Hunger)
+            } else {
+                alert('Rock is full')
+            }
         },
         'Walk Your Rock': function() {
-            new walkRock(mesh);
-            walkRock.start
-            rockProperties.Stamina -= 10
-            rockProperties.Mood = getRockMood(rockProperties.Stamina, rockProperties.Hunger)
+            if (rockProperties.Stamina > 5) {
+                new walkRock();
+                rockProperties.Stamina -= 10;
+                rockProperties.Hunger -= 5;
+                rockProperties.Mood = getRockMood(rockProperties.Stamina, rockProperties.Hunger);
+                initBackground(backgrounds[randomNum(0, 3)])
+            } else {
+                alert('Rock is tired')
+            }
+        },
+        'Stop Walking Your Rock': function() {
+            new stopWalk()
         },
         'Background': 'src/textures/default_background.jpg',
         'Hunger': 50,
@@ -231,7 +251,8 @@ function showGUI() {
         });
 
     rockActions.add(rockProperties, 'Feed Rock').on;
-    rockActions.add(rockProperties, 'Walk Your Rock')
+    rockActions.add(rockProperties, 'Walk Your Rock');
+    rockActions.add(rockProperties, 'Stop Walking Your Rock')
 
     rockCustom.add(rockProperties, 'Background', ['src/textures/default_background.jpg',
             'src/textures/nature_background.jpg',
@@ -333,34 +354,58 @@ function add3dText(value) {
 }
 
 function feedRock() {
-    const mouse = new THREE.Vector2();
-        const intersectionPoint = new THREE.Vector3();
-        const planeNormal = new THREE.Vector3();
-        const plane = new THREE.Plane();
-        const raycaster = new THREE.Raycaster();
-
-        window.addEventListener('mousemove', function(e) {
-            mouse.x = (e.clientX / this.window.innerWidth) * 2 - 1;
-            mouse.y = -(e.clientY / this.window.innerHeight) * 2 + 1;
-            planeNormal.copy(camera.position).normalize();
-            plane.setFromNormalAndCoplanarPoint(planeNormal, scene.position);
-            raycaster.setFromCamera(mouse, camera);
-            raycaster.ray.intersectPlane(plane, intersectionPoint);
-        })
-
-        window.addEventListener('click', addFood);
-        function addFood(e) {
-            const sphereGeo = new THREE.SphereGeometry(1, 30, 30);
-            const spherMat = new THREE.MeshStandardMaterial({
-                color: COLOR,
-                metalness: 0,
-                roughness: 0
-            });
-            const sphereMesh = new THREE.Mesh(sphereGeo, spherMat);
-            scene.add(sphereMesh);
-            window.removeEventListener('click', addFood);
-        }
+    const sphereGeo = new THREE.SphereGeometry(1, 100, 60);
+    const spherMat = new THREE.MeshStandardMaterial({
+        color: COLOR,
+        metalness: 0,
+        roughness: 0
+    });
+    const sphereMesh = new THREE.Mesh(sphereGeo, spherMat);
+    sphereMesh.position.x = randomNum(-70, 70);
+    sphereMesh.position.y = randomNum(-40, 40);
+    scene.add(sphereMesh);
+    setTimeout(function() {
+        mesh.position.x = sphereMesh.position.x;
+        mesh.position.y = sphereMesh.position.y;
+        scene.remove(sphereMesh);
+    }, 1000);
 }
+
+function randomNum(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+    var xSpeed = 5;
+    var ySpeed = 5;
+    var rotateSpeed = 0.5;
+
+function walkRock() {
+    document.addEventListener("keydown", onDocumentKeyDown, false);
+}
+  
+function stopWalk() {
+    document.removeEventListener("keydown", onDocumentKeyDown, false);
+}
+
+function onDocumentKeyDown(event) {
+    var keyCode = event.which;
+    if (keyCode == 87) {
+        mesh.position.y += ySpeed;
+        mesh.rotation.x -= rotateSpeed;
+    } else if (keyCode == 83) {
+        mesh.position.y -= ySpeed;
+        mesh.rotation.x += rotateSpeed;
+    } else if (keyCode == 65) {
+        mesh.position.x -= xSpeed;
+        mesh.rotation.y -= rotateSpeed;
+    } else if (keyCode == 68) {
+        mesh.position.x += xSpeed;
+        mesh.rotation.y += rotateSpeed;
+    } else if (keyCode == 32) {
+        mesh.position.set(0, 0, 0);
+        document.removeEventListener("keydown", onDocumentKeyDown, false);
+    }
+    };
 
 /**
  * Animation function update controller that updates each frame
