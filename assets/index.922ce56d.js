@@ -202,7 +202,7 @@ function Ge() {
         r = o.addFolder("Rock Vitals"),
         i = o.addFolder("Rock Actions"),
         c = o.addFolder("Rock Customizations");
-    u.add(e, "Rock Name").onChange(l => { C = l, k("name", C), I(), O(x) }), u.add(e, "Font", ["NM_Regular.json", "Retronoid_Regular.json", "font/Rubik_Bold.json"]).onChange(l => { x = l, k("font", x), I(), O(x) }), r.add(e, "Rock Weight").onChange(l => { L = l, s = te(A, ne, L), k("mesh", s), k("polygons", L), I(), O(x) }), i.add(e, "Feed Rock").on, i.add(e, "Walk Your Rock"), i.add(e, "Stop Walking Your Rock"), c.add(e, "Background", ["default_background.jpg", "nature_background.jpg", "desert.jpg", "snowy_background.jpg"]).onChange(l => { W(l) }), c.addColor(e, "Color", 255).onChange(l => {
+    u.add(e, "Rock Name").onChange(l => { C = l, k("name", C), I(), O(x) }), u.add(e, "Font", ["NM_Regular.json", "Retronoid_Regular.json", "Rubik_Bold.json"]).onChange(l => { x = l, k("font", x), I(), O(x) }), r.add(e, "Rock Weight").onChange(l => { L = l, s = te(A, ne, L), k("mesh", s), k("polygons", L), I(), O(x) }), i.add(e, "Feed Rock").on, i.add(e, "Walk Your Rock"), i.add(e, "Stop Walking Your Rock"), c.add(e, "Background", ["default_background.jpg", "nature_background.jpg", "desert.jpg", "snowy_background.jpg"]).onChange(l => { W(l) }), c.addColor(e, "Color", 255).onChange(l => {
         if (s) {
             for (const d of s.children) d.material.color.set(l);
             k("mesh", s)
